@@ -24,6 +24,8 @@ def plot():
     plt.plot(N,MSE_MAP, 'rx',   label='MSE_MAP' )
     plt.plot(N,MSE_ML,  'gx',   label='MSE_ML'  )
     
+    plt.xlabel("N") ; plt.ylabel("Values of bias/MSE")
+    
     plt.legend()
     plt.show()
 
@@ -55,6 +57,3 @@ def estimators():
     print("---------------------------------")
     print("theta_MAP_2 : ",theta_MAP_2)
     print("theta_ML_2  : ",theta_ML_2 )
-    
-plot()
-    
