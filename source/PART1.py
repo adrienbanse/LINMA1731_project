@@ -19,10 +19,10 @@ def plot():
     MSE_MAP = (2*N+1)/(9*(N+4)**2)
     MSE_ML  = 2/(9*N)
     
-    plt.plot(N,b_MAP,   '.',   label='b_MAP'   )
-    plt.plot(N,b_ML ,   '*',   label='b_ML'    )
-    plt.plot(N,MSE_MAP, 'x',   label='MSE_MAP' )
-    plt.plot(N,MSE_ML,  '<',   label='MSE_ML'  )
+    plt.plot(N,b_MAP,   'r.',   label='b_MAP'   )
+    plt.plot(N,b_ML ,   'g*',   label='b_ML'    )
+    plt.plot(N,MSE_MAP, 'rx',   label='MSE_MAP' )
+    plt.plot(N,MSE_ML,  'g<',   label='MSE_ML'  )
     
     plt.legend()
     plt.show()
@@ -55,4 +55,6 @@ def estimators():
     print("---------------------------------")
     print("theta_MAP_2 : ",theta_MAP_2)
     print("theta_ML_2  : ",theta_ML_2 )
+    
+plot()
     
