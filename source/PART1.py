@@ -20,9 +20,9 @@ def plot():
     MSE_ML  = 2/(9*N)
     
     plt.plot(N,b_MAP,   'r.',   label='b_MAP'   )
-    plt.plot(N,b_ML ,   'g*',   label='b_ML'    )
+    plt.plot(N,b_ML ,   'g.',   label='b_ML'    )
     plt.plot(N,MSE_MAP, 'rx',   label='MSE_MAP' )
-    plt.plot(N,MSE_ML,  'g<',   label='MSE_ML'  )
+    plt.plot(N,MSE_ML,  'gx',   label='MSE_ML'  )
     
     plt.legend()
     plt.show()
