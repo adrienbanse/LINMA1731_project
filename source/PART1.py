@@ -10,7 +10,7 @@ Created on Sat Mar 28 11:54:5
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot():
+def plot1():
     
     N_max = 20
     N = np.arange(1,N_max)
@@ -25,6 +25,24 @@ def plot():
     plt.plot(N,MSE_ML,  'gx',   label='MSE_ML'  )
     
     plt.xlabel("N") ; plt.ylabel("Values of bias/MSE")
+    
+    plt.legend()
+    plt.show()
+    
+def plot2():
+    
+    N = 40
+    sumZ = np.arange(0,N+1)
+    theta_MAP = (1+sumZ)/(N+4)
+    theta_ML  = sumZ/N
+    
+    plt.plot(18*np.ones(200), np.linspace(0,1,200), 'k-')
+    plt.plot(38*np.ones(200), np.linspace(0,1,200), 'k-')
+    
+    plt.plot(sumZ,theta_MAP, 'r.', label='theta_MAP')
+    plt.plot(sumZ,theta_ML , 'g.', label='theta_ML' )
+    
+    plt.xlabel("Number of birds going to A") ; plt.ylabel("Estimators")
     
     plt.legend()
     plt.show()
@@ -57,3 +75,5 @@ def estimators():
     print("---------------------------------")
     print("theta_MAP_2 : ",theta_MAP_2)
     print("theta_ML_2  : ",theta_ML_2 )
+    
+plot2()
