@@ -16,8 +16,8 @@ def plot1():
     N = np.arange(1,N_max)
     b_MAP   = -1/(3*(N+4))
     b_ML    = np.zeros(N_max-1)
-    MSE_MAP = (2*N+1)/(9*(N+4)**2)
-    MSE_ML  = 2/(9*N)
+    MSE_MAP = (4*N+13)/(21*(N+4)**2)
+    MSE_ML  = 4/(21*N)
     
     plt.plot(N,b_MAP,   'r.',   label='b_MAP'   )
     plt.plot(N,b_ML ,   'g.',   label='b_ML'    )
@@ -41,6 +41,7 @@ def plot2():
     
     plt.plot(sumZ,theta_MAP, 'r.', label='theta_MAP')
     plt.plot(sumZ,theta_ML , 'g.', label='theta_ML' )
+    plt.plot(np.linspace(0,N+1,1000),0.25*np.ones(1000)     , 'b-', label='theta_max for beta distribution')
     
     plt.xlabel("Number of birds going to A") ; plt.ylabel("Estimators")
     
