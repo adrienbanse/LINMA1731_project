@@ -31,7 +31,7 @@ var_w   = 0.004 # variance of w_t for each t
 mu_w    = 0     # mean of w_t for each t
 var_e   = 16    # variance of e_t for each t
 mu_e    = 0     # mean of e_t for each t
-N       = 100   # number of particles
+N       = 1000   # number of particles
 T       = 50    # final time
 
 X_t     = np.zeros((N,T))
@@ -57,12 +57,24 @@ for t in range(T-1):
         weight[n] = pdf_e(Y_t[t] - Map.h(float(X_tilde[n,t+1]))) # Y_t[t] = y_(t+1)
         
     weight = weight/np.sum(weight)
-    
+
+    # 3.3 resampling
     X_t[:,t+1] = np.random.choice(X_tilde[:,t+1],size=N,p=weight)
     m_x[t+1] = np.sum(weight*X_tilde[:,t+1])
 
-plt.plot(np.abs(POSITION_t-m_x))
+#plt.plot(np.abs(POSITION_t-m_x))
 #plt.plot(POSITION_t)
+plt.plot(m_x)
+A = np.linspace(0,1,201)
+B = np.zeros(201)
+for i in range(201) :
+    B[i] = Map.h(float(A[i]))
+
+#plt.plot(A,B)
+#plt.plot(POSITION_t,Y_t, '.r')
+#plt.show()
+
+
         
     
     
