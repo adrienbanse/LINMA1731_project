@@ -56,11 +56,11 @@ for t in range(T-1):
         weight[n] = pdf_e(Y_t[t+1] - Map.h(float(X_tilde[n,t+1])))
                 
     weight = weight/np.sum(weight)
-            
+    
     # 3.3. resampling from estimated pdf
     X_t[:,t+1]  = np.random.choice(X_tilde[:,t+1],size=N,p=weight)
     #m_x[t+1]    = np.sum(weight*X_tilde[:,t+1])
-        
+
 # Visualization
 plt.figure(1)
 for t in range(T):
