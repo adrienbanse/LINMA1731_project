@@ -5,10 +5,124 @@
 """
 
 import numpy as np
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import scipy.interpolate as si
 from elevationMap import ElevationMap
 import io
+
+def writeResult(fileName,M) :
+    with open(fileName,"w") as f :
+        for i in range(len(M)):
+            for j in range(len(M)):
+                f.write("%14.7e " % M[i,j])
+            f.write("\n")
+        print(" === iteration %6d : writing %s ===" % (i,fileName))
+        
+def readResult(fileName,size):
+    with open(fileName,"r") as f :
+        E = np.array(list(list(float(w) for w in f.readline().split()) for i in range(size)))
+    return E
+
+def plot1D():
+    
+    plt.figure(1)
+    plt.grid()
+    
+    for t in range(T):
+        print(t)
+        
+        # Display particles at each time:
+        plt.plot((t+0.05)*np.ones(N),X_t[:,t],'bo',markersize=1)
+        plt.plot(t * np.ones(N), X_tilde[:, t], 'go', markersize=1)
+        
+        # Display true x at each time:
+        plt.plot(t,POSITION_t[t],'kx')
+        
+        # Compute and display sample mean for each time:
+        x_mean = np.average(X_t[:,t])
+
+        plt.plot(t,x_mean,'bx')
+    
+        # Display error between sample mean and true x for each time:
+        plt.plot(t, np.abs(x_mean-POSITION_t[t]), 'ro',markersize=1)
+    
+    plt.xlabel('t')
+    plt.ylabel('x_t^i, i=1,...,n')
+    plt.title('Sequential Monte Carlo experiment')
+    
+    plt.show()
+
+def plot2D():
+    fig,ax = plt.subplots(figsize=(12,12))
+    
+    mx = np.zeros((T,2))
+
+    # Plot the topography from topo.txt
+    n = 1000
+    grid = readResult("topo.txt", n)
+    
+    topo=ma.masked_invalid(grid)
+    lons, lats = np.linspace(0,1,n),np.linspace(0,1,n)
+    
+    cs = ax.contourf(lons, lats, topo, 80, cmap=plt.get_cmap('terrain'),alpha=0.1)
+    cbar = fig.colorbar(cs, extend='both', shrink=0.5, orientation='horizontal')
+    cbar.set_label("topography height in meters")
+    
+    plt.figure(1)
+    plt.grid()
+    for t in range(T):
+        print(t)
+        # Display particles at each time:
+        plt.plot(X_t[:, t,0] , X_t[:, t,1], 'o' , color =cm.hot(np.abs(t)/T), markersize=0.2)
+        # plt.plot(t * np.ones(N), X_tilde[:, t], 'go', markersize=1)
+
+        # Display true x at each time:
+        plt.plot(POSITION_t[0,t], POSITION_t[1,t],'>', color = cm.cool(np.abs(t)/T),markersize=3)
+    
+        # Compute and display sample mean for each time:
+        # x_mean = np.average(X_t[:, t,0])
+    
+        mx[t] = [np.average(X_t[:, t,0]) , np.average(X_t[:, t,1])]
+        plt.plot(mx[t,0], mx[t,1], 'x', color = cm.cool(np.abs(t)/T),markersize=5)
+        
+        
+        #
+        # # Display error between sample mean and true x for each time:
+        # plt.plot(t, np.abs(x_mean - POSITION_t[t]), 'ro', markersize=1)
+        # plt.plot(t, np.abs(Y_t[t] - Map.h(float(POSITION_t[t]))) / 32, 'yo', markersize=1)
+
+        plt.xlabel('t')
+        plt.ylabel('x_t^i, i=1,...,n')
+        plt.title('Sequential Monte Carlo experiment')
+        
+    # plt.figure(2)
+    # # plt.plot(Y)
+    # # plt.show()
+    # plt.grid()
+    # for t in range(T):
+    #     print(t)
+    #     for i in range(N) :
+    #         plt.plot((t + 0.05), X_t[i, t,1], 'bo', markersize=1)
+    #     plt.plot(t, POSITION_t[1,t], 'kx')
+    #     x_mean = np.average(X_t[:, t, 1])
+    #     plt.plot(t, x_mean, 'bx')
+    #
+    #
+    # plt.xlabel('t')
+    # plt.ylabel('x_t^i, i=1,...,n')
+    # plt.title('Sequential Monte Carlo experiment')
+        
+    #fx = si.CubicSpline(np.arange(T),mx[:,0])
+    #fy = si.CubicSpline(np.arange(T),mx[:,1])
+    
+    #tlin = np.linspace(0,T,1000)
+    
+    #plt.plot(fx(tlin),fy(tlin),'-')
+    
+    plt.show()
+
 
 # 1. data and parameters
 dim_X = 2
@@ -44,7 +158,11 @@ else:
 var_e = 16  # variance of e_t for each t
 mu_e = 0  # mean of e_t for each t
 N = 1000  # number of particles
-T = 100  # final time
+
+if dim_X==1 : 
+    T=50 
+else :
+    T=100
 
 X_t = np.zeros((N, T + 1, dim_X), dtype=float)  # recolt particles
 X_tilde = np.zeros((N, T + 1, dim_X), dtype=float)  # recolt predictions
@@ -55,56 +173,16 @@ pdf_e = lambda e: 1 / np.sqrt((2 * np.pi) * np.sqrt(var_e)) * np.exp(-0.5 * (e -
 # lambda e: 1/np.sqrt(var_e*2*np.pi) * np.exp(-0.5*((e-mu_e)/np.sqrt(var_e))**2)
 
 
-
-
-
-
-
-
-
-
-
-fig,ax = plt.subplots(figsize=(12,12))
-
-import numpy.ma as ma
-n = 1000
-grid = np.zeros((n,n))
-for i in range(n):
-    print(i)
-    for j in range(n):
-        grid[i,j] = Map.h([i/n,j/n])
-
-topo=ma.masked_invalid(grid)
-lons, lats = np.linspace(0,1,n),np.linspace(0,1,n)
-
-print(topo.min()) # minimum elevation in our domain (meters)
-print(topo.max()) # maximum elevation in our domain (meters)
-
-# Plot topography
-cs = ax.contourf(lons, lats, topo, 80, cmap=plt.get_cmap('terrain'),alpha=0.1)
-cbar = fig.colorbar(cs, extend='both', shrink=0.5, orientation='horizontal')
-cbar.set_label("topography height in meters")
-
-
-
-
-
-
-
-
-
-
-
-
 # 2. sample from initial guess
 
 X_t[:, 0] = np.random.uniform(0, 1, (N, dim_X))  # sampling from initial uniform distribution
 # m_x[0]   = 0.5                      # initial expected value
 
-A = np.sqrt(var_w[0, 0])
-B = var_w[0, 1] / A
-C = np.sqrt(var_w[1, 1] - B * B)
-L = np.array([[A, 0], [B, C]])
+if dim_X==2 :
+    A = np.sqrt(var_w[0, 0])
+    B = var_w[0, 1] / A
+    C = np.sqrt(var_w[1, 1] - B * B)
+    L = np.array([[A, 0], [B, C]])
 
 # 3. iterations
 
@@ -133,69 +211,10 @@ for t in range(T-1):
     X_t[:, t + 1] = X_tilde[idx, t + 1]
     # m_x[t+1]    = np.sum(weight*X_tilde[:,t+1])
 
-# Visualization
-X = np.arange(0, 1, 0.0001)
-Y = np.zeros(len(X))
-for i in range(len(X)):
-    Y[i] = Map.h(float(X[i]))
-cmap = cm.get_cmap('YlOrRd',T)
-coef = 1 / pdf_e(0)
-rgba = cmap(pdf_e(Y_t[t] - X[i]))
-
-
-plt.figure(1)
-plt.grid()
-for t in range(T):
-    print(t)
-    # Display particles at each time:
-    prob = np.zeros((len(X)))
-    for i in range(len(X)):
-        prob[i] = pdf_e(Y_t[t] - Y[i])
-    # plt.scatter((t+0.3)*np.ones(len(X)),X,c=coef*prob,s=5,cmap = cm.get_cmap('YlOrRd'))
-    #for i in range(N) :
-    plt.plot(X_t[:, t,0] , X_t[:, t,1], 'o' , color =cm.hot(np.abs(t)/T), markersize=0.2)
-    # plt.plot(t * np.ones(N), X_tilde[:, t], 'go', markersize=1)
-for t in range(T):
-    print(t)
-    # Display true x at each time:
-    plt.plot(POSITION_t[0,t], POSITION_t[1,t],'>', color = cm.cool(np.abs(t)/T),markersize=3)
-
-    # Compute and display sample mean for each time:
-    # x_mean = np.average(X_t[:, t,0])
-
-    plt.plot(np.average(X_t[:, t,0]), np.average(X_t[:, t,1]), 'x', color = cm.cool(np.abs(t)/T),markersize=5)
-    #
-    # # Display error between sample mean and true x for each time:
-    # plt.plot(t, np.abs(x_mean - POSITION_t[t]), 'ro', markersize=1)
-    # plt.plot(t, np.abs(Y_t[t] - Map.h(float(POSITION_t[t]))) / 32, 'yo', markersize=1)
-
-plt.xlabel('t')
-plt.ylabel('x_t^i, i=1,...,n')
-plt.title('Sequential Monte Carlo experiment')
-
-# plt.figure(2)
-# # plt.plot(Y)
-# # plt.show()
-# plt.grid()
-# for t in range(T):
-#     print(t)
-#     for i in range(N) :
-#         plt.plot((t + 0.05), X_t[i, t,1], 'bo', markersize=1)
-#     plt.plot(t, POSITION_t[1,t], 'kx')
-#     x_mean = np.average(X_t[:, t, 1])
-#     plt.plot(t, x_mean, 'bx')
-#
-#
-# plt.xlabel('t')
-# plt.ylabel('x_t^i, i=1,...,n')
-# plt.title('Sequential Monte Carlo experiment')
-
-plt.show()
-
-
-# plt.figure(2)
-# plt.plot(np.linspace(0,1,len(Y_t)),Y_t)
-# plt.show()
+if dim_X==1 :
+    plot1D()
+else :
+    plot2D()
 
 
 
