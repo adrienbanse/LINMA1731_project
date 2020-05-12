@@ -186,9 +186,9 @@ for t in range(T - 1):
     
     X = np.random.randn(N, dim_X) # we sample N times from a standard normal distribution
     
-    if dim_X==2 : # we use the Cholesky decomposition of var_w
+    if dim_X==2 :   # 2D : we use the Cholesky decomposition of var_w
         L = cholesky(var_w)
-    else: # 1D : L is the standard deviation
+    else:           # 1D : L is the standard deviation
         L = np.array([[np.sqrt(var_w)]])
         
     w_t = np.dot(X,L)
