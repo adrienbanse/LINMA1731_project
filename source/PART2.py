@@ -184,7 +184,7 @@ for t in range(T - 1):
 
     # 2.1. State prediction
     
-    X = np.random.randn(N, dim_X) # we sample
+    X = np.random.randn(N, dim_X) # we sample N times from a standard normal distribution
     
     if dim_X==2 : # we use the Cholesky decomposition of var_w
         L = cholesky(var_w)
