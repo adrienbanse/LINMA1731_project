@@ -128,6 +128,16 @@ def plotMap():
     # fy = si.CubicSpline(np.arange(T),mx[:,1])
     # tlin = np.linspace(0,T,1000)
     # plt.plot(fx(tlin),fy(tlin),'-')
+        
+def plotError2D():
+    plt.figure()
+    plt.ylim(0,0.6)
+    plt.grid()
+    
+    for t in range (T):
+        mx = [np.average(X_t[:, t, 0]), np.average(X_t[:, t, 1])]
+        # plt.plot(mx[t, 0], mx[t, 1], 'x', color=cm.cool(np.abs(t) / T), markersize=5)
+        plt.plot(t, np.linalg.norm(mx-POSITION_t[:,t]), 'r.')
 
 #################################
 ###### DATA AND PARAMETERS ######
@@ -193,7 +203,7 @@ for t in range(T - 1):
         L = np.array([[np.sqrt(var_w)]])
 
     # Step 2.2 : Weight update
-        
+    
     w_t = np.einsum('ij,kj->ki', L, X)
     X_tilde[:, t + 1] = (X_t[:, t] + v_t * d_t) + w_t
 
@@ -218,11 +228,7 @@ for t in range(T - 1):
 plot()
 if dim_X==2: # additional plot if 2D
     plotMap()
-    plt.figure(3)
-    for t in range (T):
-        mx = [np.average(X_t[:, t, 0]), np.average(X_t[:, t, 1])]
-        # plt.plot(mx[t, 0], mx[t, 1], 'x', color=cm.cool(np.abs(t) / T), markersize=5)
-        plt.plot(t, np.linalg.norm(mx-POSITION_t[:,t]), 'r.')
+    plotError2D()
 plt.show()
 
 
