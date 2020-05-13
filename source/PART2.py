@@ -44,17 +44,20 @@ def getData(dim_X):
             clean_lines = (line.replace(b']', b',') for line in clean_lines)
             clean_lines = (line.replace(b' ', b'') for line in clean_lines)
             [Y_t, POSITION_t] = np.genfromtxt(clean_lines, dtype=str, delimiter=',')
-            POSITION_t = np.array([POSITION_t[1:len(POSITION_t) - 1]], dtype=float)  # true data
+            POSITION_t = np.array([POSITION_t[1:len(POSITION_t) - 1]], 
+                                   dtype=float) # true data
     else:
         with open('measures2D.txt', 'rb') as f:
             clean_lines = (line.replace(b'[', b',') for line in f)
             clean_lines = (line.replace(b']', b',') for line in clean_lines)
             clean_lines = (line.replace(b' ', b'') for line in clean_lines)
             [Y_t, POSITION1_t, POSITION2_t] = np.genfromtxt(clean_lines, dtype=str, delimiter=',')
-            POSITION_t = np.array([POSITION1_t[1:len(POSITION1_t) - 1], POSITION2_t[1:len(POSITION2_t) - 1]],
-                                  dtype=float)  # true data
+            POSITION_t = np.array([POSITION1_t[1:len(POSITION1_t) - 1], 
+                                   POSITION2_t[1:len(POSITION2_t) - 1]],
+                                   dtype=float) # true data
 
-    Y_t = np.array(Y_t[1:len(Y_t) - 1], dtype=float)  # true data
+    Y_t = np.array(Y_t[1:len(Y_t) - 1], dtype=float) # true data
+    
     return Y_t, POSITION_t
 
 ###################
@@ -90,7 +93,6 @@ def plot():
 
 def plotMap():
     fig, ax = plt.subplots(figsize=(12, 12))
-    plt.grid()
 
     # Plot the topography from topo.txt
     n           = 1000
@@ -117,8 +119,8 @@ def plotMap():
         #plt.plot(mx[t, 0], mx[t, 1], 'x', color=cm.cool(np.abs(t) / T), markersize=5)
         plt.plot(mx[t, 0], mx[t, 1], 'k.')
 
-        plt.xlabel('X')
-        plt.ylabel('Y')
+        plt.xlabel('x1')
+        plt.ylabel('x2')
         plt.title('Particle filtering : map vizualisation')
         
     # Display interpolation of mean with cubic splines
@@ -174,28 +176,26 @@ def cholesky(var_w):
 ###### PARTICLE FILTER ######
 #############################
 
-# 1. Sampling from initial distribution (uniform distribution)
+# Step 1 : Sampling from initial distribution (uniform distribution)
 
 X_t[:, 0] = np.random.uniform(0, 1, (N, dim_X))
 
-# 2. Iterations
+# Step 2 : Iterations
 
 for t in range(T - 1):
 
-    # 2.1. State prediction
+    # Step 2.1 : State prediction
     
     X = np.random.randn(N, dim_X) # we sample N times from a standard normal distribution
-    
     if dim_X==2 :   # 2D : we use the Cholesky decomposition of var_w
         L = cholesky(var_w)
     else:           # 1D : L is the standard deviation
         L = np.array([[np.sqrt(var_w)]])
         
     w_t = np.dot(X,L)
-
     X_tilde[:, t + 1] = (X_t[:, t] + v_t * d_t) + w_t
 
-    # 2.2. Weight update
+    # Step 2.2 : Weight update
     
     for n in range(N):
         if dim_X == 1:
@@ -204,7 +204,7 @@ for t in range(T - 1):
             weight[n] = pdf_e(Y_t[t + 1] - Map.h(X_tilde[n, t + 1]))
     weight = weight / np.sum(weight)
 
-    # 2.3. Resampling from estimated pdf
+    # Step 2.3 : Resampling from estimated pdf
     
     idx = np.random.choice(np.arange(N), size=N, p=weight)
     X_t[:, t + 1] = X_tilde[idx, t + 1]
