@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@author: adrienbanse marinebranders
+Project in Stochastic Processes : part II
+
+@author:    adrienbanse 
+            marinebranders
 """
 
 #########################
@@ -65,19 +68,24 @@ def getData(dim_X):
 ###################
 
 def plot():
-
-    fig, ax = plt.subplots(dim_X,1, sharex = True, squeeze=False)
+    
+    if dim_X>1:
+        fig, ax = plt.subplots(dim_X+1,1, sharex = True, squeeze=False)
+    else:
+        fig, ax = plt.subplots(dim_X,1, sharex = True, squeeze=False)
     fig.suptitle('Sequential Monte Carlo experiment')
 
-    for t in range(T):
-        print(t)
+    for i in range(dim_X):
+        ax[i,0].grid(True)
+        ax[i,0].set_ylabel('x%1d_t^i, i=1,...,n' % i)
         
-        for i in range(dim_X):
-            ax[i,0].grid(True)
-            ax[i,0].set_ylabel('x%1d_t^i, i=1,...,n [m]' % i)
+        for t in range(T):
+            print(t)
             
             # Display particles at each time:
             ax[i,0].plot(t * np.ones(N), X_t[:, t,i], 'bo', markersize=0.5)
+            
+        for t in range(T):
 
             # Display true x at each time:
             ax[i, 0].plot(t, POSITION_t[i, t], 'g.')
@@ -89,7 +97,17 @@ def plot():
             # Display error between sample mean and true x for each time:
             ax[i,0].plot(t, np.abs(mean_i - POSITION_t[i,t]), 'r.')
             
-    plt.xlabel('t [s]')
+    if dim_X>1:
+        ax[dim_X,0].grid(True)
+        ax[dim_X,0].set_ylabel('norm of the error')
+        ax[dim_X,0].set_ylim(0,0.6)
+        
+        for t in range(T):
+            mx = [np.average(X_t[:, t, 0]), np.average(X_t[:, t, 1])]
+            plt.plot(t, np.linalg.norm(mx-POSITION_t[:,t]), 'r.')
+            
+            
+    plt.xlabel('t')
 
 def plotMap():
     fig, ax = plt.subplots(figsize=(12, 12))
@@ -128,17 +146,7 @@ def plotMap():
     # fy = si.CubicSpline(np.arange(T),mx[:,1])
     # tlin = np.linspace(0,T,1000)
     # plt.plot(fx(tlin),fy(tlin),'-')
-        
-def plotError2D():
-    plt.figure()
-    plt.ylim(0,0.6)
-    plt.grid()
     
-    for t in range (T):
-        mx = [np.average(X_t[:, t, 0]), np.average(X_t[:, t, 1])]
-        # plt.plot(mx[t, 0], mx[t, 1], 'x', color=cm.cool(np.abs(t) / T), markersize=5)
-        plt.plot(t, np.linalg.norm(mx-POSITION_t[:,t]), 'r.')
-
 #################################
 ###### DATA AND PARAMETERS ######
 #################################
@@ -193,6 +201,7 @@ X_t[:, 0] = np.random.uniform(0, 1, (N, dim_X))
 # Step 2 : Iterations
 
 for t in range(T - 1):
+    print(t)
 
     # Step 2.1 : State prediction
     
@@ -228,7 +237,6 @@ for t in range(T - 1):
 plot()
 if dim_X==2: # additional plot if 2D
     plotMap()
-    plotError2D()
 plt.show()
 
 
