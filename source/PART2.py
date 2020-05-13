@@ -119,9 +119,9 @@ def plotMap():
         #plt.plot(mx[t, 0], mx[t, 1], 'x', color=cm.cool(np.abs(t) / T), markersize=5)
         plt.plot(mx[t, 0], mx[t, 1], 'k.')
 
-        plt.xlabel('x1')
-        plt.ylabel('x2')
-        plt.title('Particle filtering : map vizualisation')
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.title('Particle filtering : map visualization')
         
     # Display interpolation of mean with cubic splines
     # fx = si.CubicSpline(np.arange(T),mx[:,0])
@@ -191,12 +191,14 @@ for t in range(T - 1):
         L = cholesky(var_w)
     else:           # 1D : L is the standard deviation
         L = np.array([[np.sqrt(var_w)]])
-        
-    w_t = np.dot(X,L)
-    X_tilde[:, t + 1] = (X_t[:, t] + v_t * d_t) + w_t
 
     # Step 2.2 : Weight update
-    
+        
+    w_t = np.einsum('ij,kj->ki', L, X)
+    X_tilde[:, t + 1] = (X_t[:, t] + v_t * d_t) + w_t
+
+    # Step 2.2. Weight update
+
     for n in range(N):
         if dim_X == 1:
             weight[n] = pdf_e(Y_t[t + 1] - Map.h(float(X_tilde[n, t + 1, 0])))
@@ -216,4 +218,11 @@ for t in range(T - 1):
 plot()
 if dim_X==2: # additional plot if 2D
     plotMap()
+    plt.figure(3)
+    for t in range (T):
+        mx = [np.average(X_t[:, t, 0]), np.average(X_t[:, t, 1])]
+        # plt.plot(mx[t, 0], mx[t, 1], 'x', color=cm.cool(np.abs(t) / T), markersize=5)
+        plt.plot(t, np.linalg.norm(mx-POSITION_t[:,t]), 'r.')
 plt.show()
+
+
